@@ -4,7 +4,7 @@ on:
   schedule:
     # Runs every 5 minutes
     - cron: "*/5 * * * *"
-  workflow_dispatch: # lets you run it manually too
+  workflow_dispatch: # lets you also run it manually
 
 jobs:
   ping:
@@ -13,4 +13,12 @@ jobs:
       - name: Ping Render service
         run: |
           echo "Pinging artisanverse..."
-          curl -s -o /dev/null -w "%{http_code}" https://artisanverse-db0b.onrender.com/
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://artisanverse-db0b.onrender.com/)
+          echo "HTTP status: $status"
+          
+          if [ "$status" -ne 200 ]; then
+            echo "❌ Site is down (status $status)"
+            exit 1
+          else
+            echo "✅ Site is up and returned 200"
+          fi
